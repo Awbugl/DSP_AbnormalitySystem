@@ -26,7 +26,7 @@ namespace DSP_AbnormalitySystem.UI
 
         internal static UIAbnormalityWindow CreateWindow()
         {
-            var win = CreateWindow<UIAbnormalityWindow>("UIAbnormalityWindow", "星球异常");
+            var win = CreateWindow<UIAbnormalityWindow>("UIAbnormalityWindow", Localization.language == Language.zhCN ? "异常" : "Abnormality");
             return win;
         }
 
@@ -34,8 +34,8 @@ namespace DSP_AbnormalitySystem.UI
 
         protected override void _OnCreate()
         {
-            _windowTrans = GetRectTransform(this);
-            _windowTrans.sizeDelta = new Vector2(600f, 900f);
+            _windowTrans = this.GetRectTransform();
+            _windowTrans.sizeDelta = new Vector2(480f, 500f);
 
             CreateUI();
         }
@@ -44,14 +44,13 @@ namespace DSP_AbnormalitySystem.UI
         {
             var tab1 = new GameObject();
             _tab1 = tab1.AddComponent<RectTransform>();
-            NormalizeRectWithMargin(_tab1, 40, 40, 40, 40, _windowTrans);
             tab1.name = "tab-1";
 
-            _nameText = CreateText("星球倾向", 16);
-            NormalizeRectWithTopLeft(_nameText.transform, 0f, 20f, _tab1);
+            _nameText = CreateText("_nameText", 16);
 
-            _effectText = CreateText("星球异常", 16);
-            NormalizeRectWithTopLeft(_effectText.transform, 0f, 20f, _tab1);
+            _effectText = CreateText("_effectText", 16);
+            _effectText.alignment = TextAnchor.UpperLeft;
+            _effectText.horizontalOverflow = HorizontalWrapMode.Wrap;
 
             for (var i = 0; i < _currentEffectCount; ++i) CreateEffectUI(i);
         }
@@ -60,8 +59,6 @@ namespace DSP_AbnormalitySystem.UI
         {
             var effectBtn = CreateButton("Effect" + id, 40, 20);
             _effectBtns[id] = effectBtn;
-            NormalizeRectWithTopLeft(effectBtn.transform, 0, 60 + id * 30, _tab1);
-
             effectBtn.onClick += _ => OnBtnClick(id);
         }
 
@@ -103,12 +100,13 @@ namespace DSP_AbnormalitySystem.UI
             _currentEffects = abnormality.Effects;
             _currentEffectCount = abnormality.Effects.Length;
 
-            // TODO: rewrite this
+            var y = (int)((_effectText.preferredHeight + 2.0) / 2.0) * 2;
 
-            var vector = new Vector2(_effectText.preferredWidth, _effectText.preferredHeight);
-            vector.x = (int)((vector.x + 2.0) / 2.0) * 2;
-            vector.y = (int)((vector.y + 2.0) / 2.0) * 2;
-            _effectText.rectTransform.sizeDelta = vector;
+            _windowTrans.SetRectTransformSize(new Vector2(480f, y + 120 + abnormality.Effects.Length * 30));
+            _tab1.NormalizeRectWithMargin(40, 40, 40, 40, false, _windowTrans);
+            _nameText.transform.NormalizeRectWithTopLeft(0, 20, _tab1);
+            _effectText.transform.NormalizeRectWithTopLeft(0, 60, _tab1);
+            _effectText.rectTransform.SetRectTransformSize(new Vector2(400f, y));
 
             var effectBtnsLength = _effectBtns.Length;
 
@@ -129,13 +127,12 @@ namespace DSP_AbnormalitySystem.UI
                 effectBtn.tips.tipText = Translate(abnormalityEffect.Description);
                 effectBtn.tips.tipTitle = tipsTipTitle;
                 effectBtn.UpdateTip();
-                NormalizeRectWithTopLeft(effectBtn.transform, 40, _effectText.rectTransform.anchoredPosition.y + 60 + i * 60, _tab1);
+                effectBtn.transform.NormalizeRectWithTopLeft(0, y + 40 + i * 30, _tab1);
+                var btnSize = new Vector2(400f, 25f);
+                ((RectTransform)effectBtn.transform).SetRectTransformSize(btnSize);
             }
 
             for (var i = abnormality.Effects.Length; i < effectBtnsLength; ++i) _effectBtns[i].gameObject.SetActive(false);
-
-            _windowTrans.sizeDelta = new Vector2(Mathf.Max(120, vector.x + 80), Mathf.Max(240, vector.y + 100 + abnormality.Effects.Length * 30));
-            NormalizeRectWithMargin(_tab1, 40, 40, 40, 40, _windowTrans);
 
             OpenWindow();
         }
@@ -143,12 +140,11 @@ namespace DSP_AbnormalitySystem.UI
         private void OnBtnClick(int id)
         {
             var effect = _currentEffects[id];
-            switch (effect.Type)
+
+            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
+            foreach (KeyValuePair<EffectType, AbnormalitySystem.Awards> pair in AbnormalitySystem.AwardsMap)
             {
-                case EffectType.AddItem:
-                    var item = LDB.items.Select(effect.Value[0]);
-                    GameMain.mainPlayer.TryAddItemToPackage(item.ID, effect.Value[1], 0, false);
-                    break;
+                if ((effect.Type & pair.Key) > 0) pair.Value(effect.Value[pair.Key]);
             }
 
             _Close();

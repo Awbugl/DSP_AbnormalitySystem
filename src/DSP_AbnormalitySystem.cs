@@ -20,14 +20,15 @@ namespace DSP_AbnormalitySystem
 
         private void Awake()
         {
-            AbnormalitySystemPatches.Logger = Logger;
-            Harmony.CreateAndPatchAll(typeof(AbnormalitySystemPatches), MODGUID);
+            AbnormalitySystem.Logger = Logger;
+            Harmony.CreateAndPatchAll(typeof(AbnormalitySystem), MODGUID);
+            Logger.LogInfo("CustomAbnormalitySystem Abnormalities:" + AbnormalitySystem.Abnormalities.Count);
         }
 
-        public void Export(BinaryWriter w) => AbnormalitySystemPatches.Export(w);
+        public void Export(BinaryWriter w) => AbnormalitySystem.Export(w);
 
-        public void Import(BinaryReader r) => AbnormalitySystemPatches.Import(r);
+        public void Import(BinaryReader r) => AbnormalitySystem.Import(r);
 
-        public void IntoOtherSave() => AbnormalitySystemPatches.IntoOtherSave();
+        public void IntoOtherSave() => AbnormalitySystem.IntoOtherSave();
     }
 }

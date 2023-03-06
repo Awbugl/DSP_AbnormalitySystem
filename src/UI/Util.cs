@@ -44,24 +44,31 @@ namespace DSP_AbnormalitySystem.UI
             return (T)win;
         }
 
-        private static void SetTitle(ManualBehaviour win, string title)
+        private static void SetTitle(this ManualBehaviour win, string title)
         {
             var txt = GetTitleText(win);
             if (txt) txt.text = title;
         }
 
-        private static Text GetTitleText(ManualBehaviour win) => win.gameObject.transform.Find("panel-bg/title-text")?.gameObject.GetComponent<Text>();
+        private static Text GetTitleText(this ManualBehaviour win)
+            => win.gameObject.transform.Find("panel-bg/title-text")?.gameObject.GetComponent<Text>();
 
-        public static RectTransform GetRectTransform(ManualBehaviour win) => win.GetComponent<RectTransform>();
+        public static RectTransform GetRectTransform(this ManualBehaviour win) => win.GetComponent<RectTransform>();
 
         public static void OpenWindow(ManualBehaviour win)
         {
             win._Open();
             win.transform.SetAsLastSibling();
         }
-        
+
+        internal static void SetRectTransformSize(this RectTransform rt, Vector2 size)
+        {
+            rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
+            rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
+        }
+
         internal static void NormalizeRectWithTopLeft(
-            Component cmp,
+            this Component cmp,
             float left,
             float top,
             Transform parent = null)
@@ -76,14 +83,17 @@ namespace DSP_AbnormalitySystem.UI
         }
 
         public static void NormalizeRectWithMargin(
-            Component cmp,
+            this Component cmp,
             float top,
             float left,
             float bottom,
             float right,
+            bool maintainsize = false,
             Transform parent = null)
         {
             var rect = (RectTransform)cmp.transform;
+            var size = rect.sizeDelta;
+
             if (parent != null) rect.SetParent(parent, false);
 
             rect.anchoredPosition3D = Vector3.zero;
@@ -93,6 +103,8 @@ namespace DSP_AbnormalitySystem.UI
             rect.pivot = new Vector2(0.5f, 0.5f);
             rect.offsetMax = new Vector2(-right, -top);
             rect.offsetMin = new Vector2(left, bottom);
+
+            if (maintainsize) rect.SetRectTransformSize(size);
         }
 
         public static Text CreateText(string label, int fontSize = 14, TextAnchor anchor = TextAnchor.MiddleLeft)
@@ -137,7 +149,7 @@ namespace DSP_AbnormalitySystem.UI
 
             return btn;
         }
-        
+
         internal static UIButton SetUIButtonText(this UIButton btn, string text)
         {
             var btnText = btn.transform.Find("Text").GetComponent<Text>();

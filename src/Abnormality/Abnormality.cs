@@ -7,6 +7,7 @@ namespace DSP_AbnormalitySystem.Abnormality
         public string Name { get; set; }
         public string Description { get; set; }
         public AbnormalityType Type { get; set; }
+        public int SubType { get; set; }
         public Effect[] Effects { get; set; }
         public StringProto[] Translations { get; set; }
     }
@@ -16,7 +17,6 @@ namespace DSP_AbnormalitySystem.Abnormality
         public string Name { get; set; }
         public string Description { get; set; }
         public EffectType Type { get; set; }
-        // public string Icon { get; set; }
-        public int[] Value { get; set; }
+        public Dictionary<EffectType, int[]> Value { get; set; }
     }
 }

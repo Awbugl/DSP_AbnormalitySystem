@@ -1,0 +1,41 @@
+{
+  "Name": "AExtremeStorm",
+  "Description": "AExtremeStormsDesc",
+  "Type": 4,
+  "SubType": 2,
+  "Effects": [
+    {
+      "Name": "AEffectsName1",
+      "Description": "AEffectsDescription1",
+      "Type": 1,
+      "Value": {
+        "1": [
+          1000,
+          1
+        ]
+      }
+    }
+  ],
+  "Translations": [
+    {
+      "Name": "AExtremeStorm",
+      "ENUS": "Extreme Storm",
+      "ZHCN": "极端风暴"
+    },
+    {
+      "Name": "AExtremeStormsDesc",
+      "ZHCN": "${PlanetName}的大气中频繁发生规模巨大的极端风暴。一些周期较长的风暴在轨道上即可见，当中的风速最高可超过700米/秒。造成风暴的原因目前还不清楚，我们在气象模型中没有发现能够解释这一现象的线索。我们的科学家会持续关注这一异常现象。",
+      "ENUS": "Extreme storms of significant size occur frequently in the ${PlanetName} atmosphere. Some of the longer-period storms are visible from orbit, where wind speeds can exceed 700 m/s. The cause of the storms is not yet known and we have found no clues in our meteorological models to explain this phenomenon. Our scientists will continue to monitor this anomaly."
+    },
+    {
+      "Name": "AEffectsName1",
+      "ZHCN": "真是有趣。",
+      "ENUS": "Interesting."
+    },
+    {
+      "Name": "AEffectsDescription1",
+      "ZHCN": "真是有趣。",
+      "ENUS": "Interesting."
+    }
+  ]
+}

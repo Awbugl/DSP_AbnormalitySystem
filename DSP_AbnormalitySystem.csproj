@@ -101,6 +101,7 @@
     </ItemGroup>
     <ItemGroup>
         <Content Include="DefaultPath.props" />
+        <Content Include="README.md" />
         <None Include="dependencies\abnormalities\AExtremeStorm.json" />
         <Content Include="dependencies\Newtonsoft.Json.dll" />
     </ItemGroup>

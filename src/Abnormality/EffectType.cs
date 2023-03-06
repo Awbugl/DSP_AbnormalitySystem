@@ -1,6 +1,6 @@
 using System;
 
-namespace DSP_AbnormalitySystem.Abnormality
+namespace DSP_AbnormalitySystem
 {
     [Flags]
     public enum EffectType

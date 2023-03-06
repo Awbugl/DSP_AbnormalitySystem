@@ -95,8 +95,6 @@
         <Compile Include="src\Abnormality\Abnormality.cs" />
         <Compile Include="src\Abnormality\AbnormalityType.cs" />
         <Compile Include="src\Abnormality\EffectType.cs" />
-        <Compile Include="src\Abnormality\PlanetAbnormality.cs" />
-        <Compile Include="src\Abnormality\StarAbnormality.cs" />
         <Compile Include="src\DSP_AbnormalitySystem.cs" />
         <Compile Include="src\UI\UIAbnormalityWindow.cs" />
         <Compile Include="src\UI\Util.cs" />

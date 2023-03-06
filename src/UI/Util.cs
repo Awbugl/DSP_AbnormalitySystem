@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-namespace DSP_AbnormalitySystem.UI
+namespace DSP_AbnormalitySystem
 {
     /// <summary>
     ///   special thanks to https://github.com/hetima/DSP_PlanetFinder/tree/main/PlanetFinder

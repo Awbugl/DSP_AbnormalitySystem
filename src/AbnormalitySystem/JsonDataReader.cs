@@ -9,13 +9,13 @@ namespace DSP_AbnormalitySystem
 {
     public static partial class AbnormalitySystem
     {
-        internal static Dictionary<Abnormality.AbnormalityType, List<Abnormality.Abnormality>> Abnormalities { get; }
+        internal static Dictionary<AbnormalityType, List<Abnormality>> Abnormalities { get; }
 
-        private static Dictionary<Abnormality.PlanetAbnormalitySubType, List<Abnormality.PlanetAbnormality>> PlanetAbnormalities { get; }
+        private static Dictionary<PlanetAbnormalitySubType, List<Abnormality>> PlanetAbnormalities { get; }
 
-        private static Dictionary<Abnormality.StarAbnormalitySubType, List<Abnormality.StarAbnormality>> StarAbnormalities { get; }
+        private static Dictionary<StarAbnormalitySubType, List<Abnormality>> StarAbnormalities { get; }
 
-        private static T GetRandomAbnormality<T>(this List<T> list) where T : Abnormality.Abnormality => list[Random.Next(list.Count)];
+        private static T GetRandomAbnormality<T>(this List<T> list) where T : Abnormality => list[Random.Next(list.Count)];
 
         static AbnormalitySystem()
         {
@@ -26,58 +26,49 @@ namespace DSP_AbnormalitySystem
             var jsonDir = Path.Combine(Paths.ConfigPath, "CustomAbnormalitySystem", "abnormalities");
             Directory.CreateDirectory(jsonDir);
 
-            Abnormalities = new Dictionary<Abnormality.AbnormalityType, List<Abnormality.Abnormality>>();
-            PlanetAbnormalities = new Dictionary<Abnormality.PlanetAbnormalitySubType, List<Abnormality.PlanetAbnormality>>();
-            StarAbnormalities = new Dictionary<Abnormality.StarAbnormalitySubType, List<Abnormality.StarAbnormality>>();
+            Abnormalities = new Dictionary<AbnormalityType, List<Abnormality>>();
+            PlanetAbnormalities = new Dictionary<PlanetAbnormalitySubType, List<Abnormality>>();
+            StarAbnormalities = new Dictionary<StarAbnormalitySubType, List<Abnormality>>();
 
             // ReSharper disable once LoopCanBePartlyConvertedToQuery
             foreach (var file in Directory.GetFiles(jsonDir, "*.json"))
             {
-                var abnormality = JsonConvert.DeserializeObject<Abnormality.Abnormality>(File.ReadAllText(file));
+                var abnormality = JsonConvert.DeserializeObject<Abnormality>(File.ReadAllText(file));
 
                 switch (abnormality.Type)
                 {
-                    case Abnormality.AbnormalityType.Planet:
+                    case AbnormalityType.Planet:
                     {
-                        var planetAbnormality = abnormality as Abnormality.PlanetAbnormality;
-
-                        if (planetAbnormality == null) throw new InvalidDataException("Planet abnormality is null");
-
-                        var planetAbnormalitySubType = (Abnormality.PlanetAbnormalitySubType)planetAbnormality.SubType;
+                        var planetAbnormalitySubType = (PlanetAbnormalitySubType)abnormality.SubType;
 
                         if (!PlanetAbnormalities.ContainsKey(planetAbnormalitySubType))
-                            PlanetAbnormalities.Add(planetAbnormalitySubType, new List<Abnormality.PlanetAbnormality>());
+                            PlanetAbnormalities.Add(planetAbnormalitySubType, new List<Abnormality>());
 
-                        PlanetAbnormalities[planetAbnormalitySubType].Add(planetAbnormality);
+                        PlanetAbnormalities[planetAbnormalitySubType].Add(abnormality);
 
-                        break;
+                        goto default;
                     }
 
-                    case Abnormality.AbnormalityType.Star:
+                    case AbnormalityType.Star:
                     {
-                        var starAbnormality = abnormality as Abnormality.StarAbnormality;
-
-                        if (starAbnormality == null) throw new InvalidDataException("Star abnormality is null");
-
-                        var starAbnormalitySubType = (Abnormality.StarAbnormalitySubType)starAbnormality.SubType;
+                        var starAbnormalitySubType = (StarAbnormalitySubType)abnormality.SubType;
 
                         if (!StarAbnormalities.ContainsKey(starAbnormalitySubType))
-                            StarAbnormalities.Add(starAbnormalitySubType, new List<Abnormality.StarAbnormality>());
+                            StarAbnormalities.Add(starAbnormalitySubType, new List<Abnormality>());
 
-                        StarAbnormalities[starAbnormalitySubType].Add(starAbnormality);
+                        StarAbnormalities[starAbnormalitySubType].Add(abnormality);
 
-                        break;
+                        goto default;
                     }
 
                     default:
                     {
-                        if (!Abnormalities.ContainsKey(abnormality.Type)) Abnormalities.Add(abnormality.Type, new List<Abnormality.Abnormality>());
+                        if (!Abnormalities.ContainsKey(abnormality.Type)) Abnormalities.Add(abnormality.Type, new List<Abnormality>());
+                        Abnormalities[abnormality.Type].Add(abnormality);
 
-                        break;
+                        continue;
                     }
                 }
-
-                Abnormalities[abnormality.Type].Add(abnormality);
             }
         }
     }

@@ -1,4 +1,4 @@
-namespace DSP_AbnormalitySystem.Abnormality
+namespace DSP_AbnormalitySystem
 {
     public enum AbnormalityType
     {

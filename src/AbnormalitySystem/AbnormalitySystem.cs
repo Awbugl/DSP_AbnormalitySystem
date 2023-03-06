@@ -1,6 +1,4 @@
-﻿using DSP_AbnormalitySystem.Abnormality;
-using DSP_AbnormalitySystem.UI;
-using HarmonyLib;
+﻿using HarmonyLib;
 using UnityEngine;
 
 // ReSharper disable InconsistentNaming
@@ -33,24 +31,29 @@ namespace DSP_AbnormalitySystem
             {
                 Logger.LogInfo($"Trigger abnormality on planet {planet.id}");
 
-                var audio = VFAudio.Create("mecha-mining", GameMain.mainPlayer.transform, Vector3.zero);
-                audio.Play();
-                var audioSource = Object.Instantiate(audio.audioSource);
-                audio.Stop();
-                audioSource.clip = AudioClip;
-                audioSource.PlayOneShot(AudioClip, audioSource.volume);
+                PlayAudio();
 
                 TriggerPlanetAbnormality(planet);
             }
         }
 
+        private static void PlayAudio() => BGMController.instance.musics[BGMController.BGM].PlayOneShot(AudioClip, VFAudio.finalSoundVolume);
+
         private static void TriggerPlanetAbnormality(PlanetData planet)
         {
-            var planetAbnormalitySubType = planet.type == EPlanetType.Gas ? PlanetAbnormalitySubType.GasGiant : PlanetAbnormalitySubType.Terrestrial;
+            try
+            {
+                var planetAbnormalitySubType
+                    = planet.type == EPlanetType.Gas ? PlanetAbnormalitySubType.GasGiant : PlanetAbnormalitySubType.Terrestrial;
 
-            Abnormality.Abnormality abnormality = PlanetAbnormalities[planetAbnormalitySubType].GetRandomAbnormality();
+                var abnormality = PlanetAbnormalities[planetAbnormalitySubType].GetRandomAbnormality();
 
-            _uiAbnormalityWindow.SetAbnormality(planet, abnormality);
+                _uiAbnormalityWindow.SetAbnormality(planet, abnormality);
+            }
+            catch (System.Exception e)
+            {
+                Logger.LogError($"Failed to trigger abnormality on planet {planet.id}: {e}");
+            }
         }
     }
 }

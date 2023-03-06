@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using DSP_AbnormalitySystem.Abnormality;
 using UnityEngine;
 using UnityEngine.UI;
-using static DSP_AbnormalitySystem.UI.Util;
+using static DSP_AbnormalitySystem.Util;
 
-namespace DSP_AbnormalitySystem.UI
+namespace DSP_AbnormalitySystem
 {
     /// <summary>
     ///   special thanks to https://github.com/hetima/DSP_PlanetFinder/tree/main/PlanetFinder
@@ -26,7 +25,8 @@ namespace DSP_AbnormalitySystem.UI
 
         internal static UIAbnormalityWindow CreateWindow()
         {
-            var win = CreateWindow<UIAbnormalityWindow>("UIAbnormalityWindow", Localization.language == Language.zhCN ? "异常" : "Abnormality");
+            var win = CreateWindow<UIAbnormalityWindow>("UIAbnormalityWindow",
+                                                        Localization.language == Language.zhCN ? "异常现象已发现" : "Abnormality Investigation");
             return win;
         }
 
@@ -35,8 +35,7 @@ namespace DSP_AbnormalitySystem.UI
         protected override void _OnCreate()
         {
             _windowTrans = this.GetRectTransform();
-            _windowTrans.sizeDelta = new Vector2(480f, 500f);
-
+            _windowTrans.SetRectTransformSize(new Vector2(480f, 200f));
             CreateUI();
         }
 
@@ -47,10 +46,13 @@ namespace DSP_AbnormalitySystem.UI
             tab1.name = "tab-1";
 
             _nameText = CreateText("_nameText", 16);
+            _nameText.transform.NormalizeRectWithTopLeft(0, 20, _tab1);
 
             _effectText = CreateText("_effectText", 16);
             _effectText.alignment = TextAnchor.UpperLeft;
+            _effectText.alignByGeometry = true;
             _effectText.horizontalOverflow = HorizontalWrapMode.Wrap;
+            _effectText.transform.NormalizeRectWithTopLeft(0, 60, _tab1);
 
             for (var i = 0; i < _currentEffectCount; ++i) CreateEffectUI(i);
         }
@@ -71,7 +73,7 @@ namespace DSP_AbnormalitySystem.UI
             }
         }
 
-        public void SetAbnormality(PlanetData planet, Abnormality.Abnormality abnormality)
+        public void SetAbnormality(PlanetData planet, Abnormality abnormality)
         {
             Dictionary<string, StringProto> trans = abnormality.Translations.ToDictionary(i => i.Name);
             var lang = Localization.language;
@@ -80,33 +82,63 @@ namespace DSP_AbnormalitySystem.UI
             {
                 var proto = trans[s];
 
+                var result = s;
+
                 switch (lang)
                 {
                     case Language.zhCN:
-                        return proto.ZHCN;
+                        result = proto.ZHCN;
+                        break;
+
 
                     case Language.enUS:
-                        return proto.ENUS;
+                        result = proto.ENUS;
+                        break;
+
 
                     case Language.frFR:
-                        return proto.FRFR ?? proto.ENUS;
+                        result = proto.FRFR ?? proto.ENUS;
+                        break;
                 }
 
-                return s;
+                return result.Replace("${PlanetName}", planet.displayName);
             }
 
-            _nameText.text = planet.displayName + " - " + Translate(abnormality.Name);
-            _effectText.text = Translate(abnormality.Description);
+            string TranslateEffect(string s, Dictionary<EffectType, int[]> effectvalue = null)
+            {
+                var result = Translate(s);
+
+                if (effectvalue?.ContainsKey(EffectType.AddTechHash) == true)
+                {
+                    result = result.Replace("${TechName}", LDB.techs.Select(effectvalue[EffectType.AddTechHash][0]).Name.Translate())
+                                   .Replace("${TechProgress}", effectvalue[EffectType.AddTechHash][1].ToString());
+                }
+
+                if (effectvalue?.ContainsKey(EffectType.AddItem) == true)
+                {
+                    result = result.Replace("${ItemName}", LDB.items.Select(effectvalue[EffectType.AddItem][0]).Name.Translate())
+                                   .Replace("${ItemCount}", effectvalue[EffectType.AddItem][1].ToString());
+                }
+
+                return result;
+            }
+
             _currentEffects = abnormality.Effects;
             _currentEffectCount = abnormality.Effects.Length;
+            _nameText.text = planet.displayName + " - " + Translate(abnormality.Name);
+            _effectText.text = Translate(abnormality.Description);
 
             var y = (int)((_effectText.preferredHeight + 2.0) / 2.0) * 2;
+            _effectText.rectTransform.SetRectTransformSize(new Vector2(400f, y));
+            _windowTrans.SetRectTransformSize(new Vector2(480f, y + 160 + abnormality.Effects.Length * 30));
 
-            _windowTrans.SetRectTransformSize(new Vector2(480f, y + 120 + abnormality.Effects.Length * 30));
+            // preferredHeight changed after SetRectTransformSize so need to reset it
+            y = (int)((_effectText.preferredHeight + 2.0) / 2.0) * 2;
+            _windowTrans.SetRectTransformSize(new Vector2(480f, y + 160 + abnormality.Effects.Length * 30));
+            
             _tab1.NormalizeRectWithMargin(40, 40, 40, 40, false, _windowTrans);
             _nameText.transform.NormalizeRectWithTopLeft(0, 20, _tab1);
             _effectText.transform.NormalizeRectWithTopLeft(0, 60, _tab1);
-            _effectText.rectTransform.SetRectTransformSize(new Vector2(400f, y));
 
             var effectBtnsLength = _effectBtns.Length;
 
@@ -124,10 +156,10 @@ namespace DSP_AbnormalitySystem.UI
                 var abnormalityEffect = abnormality.Effects[i];
                 var tipsTipTitle = Translate(abnormalityEffect.Name);
                 effectBtn.SetUIButtonText(tipsTipTitle);
-                effectBtn.tips.tipText = Translate(abnormalityEffect.Description);
+                effectBtn.tips.tipText = TranslateEffect(abnormalityEffect.Description, abnormalityEffect.Value);
                 effectBtn.tips.tipTitle = tipsTipTitle;
                 effectBtn.UpdateTip();
-                effectBtn.transform.NormalizeRectWithTopLeft(0, y + 40 + i * 30, _tab1);
+                effectBtn.transform.NormalizeRectWithTopLeft(0, y + 80 + i * 30, _tab1);
                 var btnSize = new Vector2(400f, 25f);
                 ((RectTransform)effectBtn.transform).SetRectTransformSize(btnSize);
             }

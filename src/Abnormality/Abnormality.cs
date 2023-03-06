@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 
-namespace DSP_AbnormalitySystem.Abnormality
+namespace DSP_AbnormalitySystem
 {
-    public abstract class Abnormality
+    public class Abnormality
     {
         public string Name { get; set; }
         public string Description { get; set; }
